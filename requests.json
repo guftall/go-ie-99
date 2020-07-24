@@ -1,0 +1,24 @@
+[
+    {
+        "action": "is_identifier_exist",
+        "parameters": [
+            {
+                "key": "identifier",
+                "value": "ombe"
+            }
+        ]
+    },
+    {
+        "action": "insert",
+        "parameters": [
+            {
+                "key": "identifier",
+                "value": "ombe1"
+            },
+            {
+                "key": "key",
+                "value": "pub_key_test"
+            }
+        ]
+    }
+]

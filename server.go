@@ -59,6 +59,56 @@ func runCommand(msg message) string {
 			res := strconv.Itoa(count)
 			return res
 		}
+	case "read_identifier":
+		{
+			var key string
+			for _, val := range msg.Parameters {
+				if val.Key == "key" {
+					key = val.Value
+					break
+				}
+			}
+			identifier := readIdentifier(key)
+			return identifier
+		}
+	case "is_identifier_exist":
+		{
+			var identifier string
+			for _, val := range msg.Parameters {
+				if val.Key == "identifier" {
+					identifier = val.Value
+					break
+				}
+			}
+			exist := isIdentifierExist(identifier)
+			if exist {
+				return "yes"
+			}
+
+			return "no"
+		}
+	case "insert":
+		{
+			var key string
+			var identifier string
+			for _, val := range msg.Parameters {
+				if val.Key == "identifier" {
+					identifier = val.Value
+				}
+				if val.Key == "key" {
+					key = val.Value
+				}
+			}
+
+			exist := isIdentifierExist(identifier)
+			if exist {
+				return "already_exist"
+			}
+
+			insertPublicKey(key, identifier)
+
+			return "inserted"
+		}
 	default:
 		{
 			return "unrecognized command"

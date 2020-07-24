@@ -1,52 +1,117 @@
 package main
 
 import (
-	"database/sql"
+	"context"
 	"log"
+	"time"
 
-	_ "github.com/go-sql-driver/mysql"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var database *sql.DB
+var client *mongo.Client
 
 func initializeDatabase() {
-	db, err := sql.Open("mysql", "omid:65254585Om@tcp(192.168.8.100)/ieproj")
+	_client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://192.168.8.100:27017"))
 	if err != nil {
-		log.Print("connect to mysql failed", err)
+		log.Fatal(err)
+	}
+	_ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	err = _client.Connect(_ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	client = _client
+}
+
+func readIdentifier(key string) string {
+
+	collection := client.Database("ieproj").Collection("rsakeys")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	type doc struct {
+		Key        string
+		Identifier string
 	}
 
-	// Open doesn't open a connection. Validate DSN data:
-	err = db.Ping()
+	var _doc doc
+	err := collection.FindOne(ctx, bson.D{{"key", key}}).Decode(&_doc)
+
 	if err != nil {
-		panic(err.Error()) // proper error handling instead of panic in your app
+		log.Fatal(err)
 	}
 
-	database = db
+	return _doc.Identifier
+}
+
+func isIdentifierExist(identifier string) bool {
+
+	collection := client.Database("ieproj").Collection("rsakeys")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	count, err := collection.CountDocuments(ctx, bson.D{{"identifier", identifier}})
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return count > 0
+}
+
+func insertPublicKey(key, identifier string) {
+
+	collection := client.Database("ieproj").Collection("rsakeys")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	res, err := collection.InsertOne(ctx, bson.D{{"pk", key}, {"identifier", identifier}})
+	if err != nil {
+		log.Print(err)
+		return
+	}
+
+	log.Println("inserted")
+	log.Print(res.InsertedID)
 }
 
 func countRecords() int {
-	sql := "select count(id) as count from tblkeys"
 
-	type count struct {
-		count int
-	}
-	var c count
-	rows, err := database.Query(sql)
+	collection := client.Database("ieproj").Collection("rsakeys")
 
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	count, err := collection.CountDocuments(ctx, bson.D{})
 	if err != nil {
-		log.Print("query failed", err, sql)
+		log.Print(err)
 		return -1
 	}
 
-	for rows.Next() {
-		err := rows.Scan(&c.count)
-		if err != nil {
-			log.Print("scan row failed", err)
-			return -1
-		}
+	return int(count)
 
-		break
-	}
-
-	return c.count
+	// log.Print(count)
+	// cur, err := collection.Find(ctx, bson.D{})
+	// if err != nil {
+	// 	log.Print(err)
+	// }
+	// defer cur.Close(ctx)
+	// for cur.Next(ctx) {
+	// 	var result bson.M
+	// 	err := cur.Decode(&result)
+	// 	if err != nil {
+	// 		log.Fatal(err)
+	// 	}
+	// 	log.Println(result)
+	// 	// do something with result....
+	// }
+	// if err := cur.Err(); err != nil {
+	// 	log.Fatal(err)
+	// }
 }
