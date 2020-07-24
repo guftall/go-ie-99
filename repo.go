@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"os"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -13,7 +14,9 @@ import (
 var client *mongo.Client
 
 func initializeDatabase() {
-	_client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://192.168.8.100:27017"))
+	uri := os.Getenv("mongouri")
+	log.Printf("mongodb uri: %s", uri)
+	_client, err := mongo.NewClient(options.Client().ApplyURI(uri))
 	if err != nil {
 		log.Fatal(err)
 	}
