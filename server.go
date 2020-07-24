@@ -6,12 +6,14 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/gorilla/websocket"
 )
 
-var addr = flag.String("addr", "localhost:8080", "http service address")
+var addr = flag.String("addr", "0.0.0.0", "http service address")
+var port = os.Getenv("PORT")
 
 var upgrader = websocket.Upgrader{} // use default options
 
@@ -125,8 +127,9 @@ func initializeServer() {
 	log.SetFlags(0)
 	http.HandleFunc("/websocket", echo)
 	http.HandleFunc("/", home)
-	log.Print("listening on ", *addr)
-	log.Fatal(http.ListenAndServe(*addr, nil))
+	lisAddr := *addr + ":" + port
+	log.Print("listening on ", lisAddr)
+	log.Fatal(http.ListenAndServe(lisAddr, nil))
 }
 
 type message struct {
