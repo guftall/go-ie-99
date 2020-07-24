@@ -119,7 +119,8 @@ func runCommand(msg message) string {
 }
 
 func home(w http.ResponseWriter, r *http.Request) {
-	homeTemplate.Execute(w, "ws://"+r.Host+"/websocket")
+	wss := os.Getenv("websocketschema")
+	homeTemplate.Execute(w, wss+"://"+r.Host+"/websocket")
 }
 
 func initializeServer() {
