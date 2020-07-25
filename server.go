@@ -10,6 +10,7 @@ import (
 	"strconv"
 
 	"github.com/gorilla/handlers"
+	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 )
 
@@ -127,11 +128,16 @@ func home(w http.ResponseWriter, r *http.Request) {
 func initializeServer() {
 	flag.Parse()
 	log.SetFlags(0)
-	http.HandleFunc("/websocket", echo)
-	http.HandleFunc("/", home)
+
+	r := mux.NewRouter()
+
+	r.HandleFunc("/websocket", echo)
+	r.HandleFunc("/", home)
+
 	lisAddr := *addr + ":" + port
 	log.Print("listening on ", lisAddr)
-	log.Fatal(http.ListenAndServe(lisAddr, nil))
+
+	log.Fatal(http.ListenAndServe(lisAddr, createCorsHandler()(r)))
 }
 
 func createCorsHandler() func(http.Handler) http.Handler {
