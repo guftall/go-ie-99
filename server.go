@@ -17,7 +17,11 @@ import (
 var addr = flag.String("addr", "0.0.0.0", "http service address")
 var port = os.Getenv("PORT")
 
-var upgrader = websocket.Upgrader{} // use default options
+var upgrader = websocket.Upgrader{
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
+} // use default options
 
 func echo(w http.ResponseWriter, r *http.Request) {
 	c, err := upgrader.Upgrade(w, r, nil)
