@@ -9,6 +9,7 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/websocket"
 )
 
@@ -131,6 +132,17 @@ func initializeServer() {
 	lisAddr := *addr + ":" + port
 	log.Print("listening on ", lisAddr)
 	log.Fatal(http.ListenAndServe(lisAddr, nil))
+}
+
+func createCorsHandler() func(http.Handler) http.Handler {
+
+	headersOk := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
+	originsOk := handlers.AllowedOrigins([]string{
+		"http://localhost:3000",
+	})
+	methodsOk := handlers.AllowedMethods([]string{"GET", "POST", "PUT", "HEAD", "OPTIONS"})
+
+	return handlers.CORS(headersOk, originsOk, methodsOk)
 }
 
 type message struct {
