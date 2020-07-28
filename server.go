@@ -46,7 +46,14 @@ func echo(w http.ResponseWriter, r *http.Request) {
 		result := runCommand(command)
 
 		log.Print("command result: ", result)
-		err = c.WriteMessage(mt, []byte(result))
+
+		b, err := json.Marshal(result)
+		if err != nil {
+			log.Print("marshal failed", err)
+			continue
+		}
+
+		err = c.WriteMessage(mt, b)
 		if err != nil {
 			log.Println("write:", err)
 			break
@@ -54,18 +61,29 @@ func echo(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func runCommand(msg message) string {
+type response struct {
+	Action  string `json:"action"`
+	Message string `json:"message"`
+}
+
+func runCommand(msg message) response {
 
 	switch msg.Action {
 	case "echo":
 		{
-			return msg.Action
+			return response{
+				Action: "echo",
+			}
 		}
 	case "count":
 		{
 			count := countRecords()
 			res := strconv.Itoa(count)
-			return res
+
+			return response{
+				Action:  "count",
+				Message: res,
+			}
 		}
 	case "read_identifier":
 		{
@@ -77,7 +95,10 @@ func runCommand(msg message) string {
 				}
 			}
 			identifier := readIdentifier(key)
-			return identifier
+			return response{
+				Action:  "read_identifier",
+				Message: identifier,
+			}
 		}
 	case "is_identifier_exist":
 		{
@@ -90,10 +111,16 @@ func runCommand(msg message) string {
 			}
 			exist := isIdentifierExist(identifier)
 			if exist {
-				return "yes"
+				return response{
+					Action:  "is_identifier_exist",
+					Message: "yes",
+				}
 			}
 
-			return "no"
+			return response{
+				Action:  "is_identifier_exist",
+				Message: "no",
+			}
 		}
 	case "insert":
 		{
@@ -110,16 +137,25 @@ func runCommand(msg message) string {
 
 			exist := isIdentifierExist(identifier)
 			if exist {
-				return "already_exist"
+				return response{
+					Action:  "insert",
+					Message: "already_exist",
+				}
 			}
 
 			insertPublicKey(key, identifier)
 
-			return "inserted"
+			return response{
+				Action:  "insert",
+				Message: "inserted",
+			}
 		}
 	default:
 		{
-			return "unrecognized command"
+			return response{
+				Action:  "*",
+				Message: "unrecognized command",
+			}
 		}
 	}
 }

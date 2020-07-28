@@ -9,6 +9,15 @@
         ]
     },
     {
+        "action": "read_identifier",
+        "parameters": [
+            {
+                "key": "key",
+                "value": "public key"
+            }
+        ]
+    },
+    {
         "action": "insert",
         "parameters": [
             {
