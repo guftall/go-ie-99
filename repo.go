@@ -45,7 +45,7 @@ func readIdentifier(key string) string {
 	err := collection.FindOne(ctx, bson.D{{"key", key}}).Decode(&_doc)
 
 	if err != nil {
-		return "not_exist"
+		return ""
 	}
 
 	return _doc.Identifier
