@@ -95,6 +95,14 @@ func runCommand(msg message) response {
 				}
 			}
 			identifier := readIdentifier(key)
+			if identifier == "" {
+
+				return response{
+					Action:  "read_identifier_not_exist",
+					Message: "",
+				}
+			}
+
 			return response{
 				Action:  "read_identifier",
 				Message: identifier,

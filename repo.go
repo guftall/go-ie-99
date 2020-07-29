@@ -45,7 +45,7 @@ func readIdentifier(key string) string {
 	err := collection.FindOne(ctx, bson.D{{"key", key}}).Decode(&_doc)
 
 	if err != nil {
-		log.Fatal(err)
+		return "not_exist"
 	}
 
 	return _doc.Identifier
@@ -61,7 +61,7 @@ func isIdentifierExist(identifier string) bool {
 	count, err := collection.CountDocuments(ctx, bson.D{{"identifier", identifier}})
 
 	if err != nil {
-		log.Fatal(err)
+		return false
 	}
 
 	return count > 0
