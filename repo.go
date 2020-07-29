@@ -42,7 +42,7 @@ func readIdentifier(key string) string {
 	}
 
 	var _doc doc
-	err := collection.FindOne(ctx, bson.D{{"key", key}}).Decode(&_doc)
+	err := collection.FindOne(ctx, bson.D{{"pk", key}}).Decode(&_doc)
 
 	if err != nil {
 		return ""
