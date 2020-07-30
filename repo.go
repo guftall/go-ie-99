@@ -99,22 +99,4 @@ func countRecords() int {
 
 	return int(count)
 
-	// log.Print(count)
-	// cur, err := collection.Find(ctx, bson.D{})
-	// if err != nil {
-	// 	log.Print(err)
-	// }
-	// defer cur.Close(ctx)
-	// for cur.Next(ctx) {
-	// 	var result bson.M
-	// 	err := cur.Decode(&result)
-	// 	if err != nil {
-	// 		log.Fatal(err)
-	// 	}
-	// 	log.Println(result)
-	// 	// do something with result....
-	// }
-	// if err := cur.Err(); err != nil {
-	// 	log.Fatal(err)
-	// }
 }
